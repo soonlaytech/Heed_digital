@@ -1,0 +1,85 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;500;600&family=Outfit:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Heed Palette: Soft Beige & Sage Green */
+  --background: 40 33% 98%;      /* #FDFBF7 */
+  --foreground: 217 24% 23%;     /* #2D3748 */
+  
+  --primary: 134 18% 59%;        /* #84A98C - Sage Green */
+  --primary-foreground: 0 0% 100%;
+  
+  --secondary: 120 11% 91%;      /* #E6EBE6 - Light Sage */
+  --secondary-foreground: 217 24% 23%;
+  
+  --muted: 40 20% 94%;
+  --muted-foreground: 215 16% 47%;
+  
+  --accent: 30 53% 64%;          /* #D4A373 - Earthy accent */
+  --accent-foreground: 0 0% 100%;
+  
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 210 40% 98%;
+  
+  --border: 120 10% 88%;
+  --input: 120 10% 88%;
+  --ring: 134 18% 59%;
+  
+  --radius: 1rem;
+}
+
+.dark {
+  /* Dark mode - Deep Forest/Charcoal */
+  --background: 220 20% 10%;
+  --foreground: 40 20% 94%;
+  
+  --primary: 134 25% 50%;
+  --primary-foreground: 0 0% 100%;
+  
+  --secondary: 220 15% 18%;
+  --secondary-foreground: 40 20% 94%;
+  
+  --muted: 220 15% 18%;
+  --muted-foreground: 215 20% 65%;
+  
+  --accent: 30 45% 55%;
+  --accent-foreground: 0 0% 100%;
+  
+  --destructive: 0 62% 30%;
+  --destructive-foreground: 210 40% 98%;
+  
+  --border: 220 15% 20%;
+  --input: 220 15% 20%;
+  --ring: 134 25% 50%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'DM Sans', sans-serif;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', sans-serif;
+  }
+}
+
+/* Custom Utilities for Heed */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .glass-panel {
+    @apply bg-white/50 backdrop-blur-md border border-white/20 shadow-sm;
+  }
+  
+  .dark .glass-panel {
+    @apply bg-black/20 border-white/5;
+  }
+}
