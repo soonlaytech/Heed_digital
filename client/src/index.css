@@ -5,28 +5,28 @@
 @tailwind utilities;
 
 :root {
-  /* Heed Palette: Soft Beige & Sage Green */
-  --background: 40 33% 98%;      /* #FDFBF7 */
-  --foreground: 217 24% 23%;     /* #2D3748 */
+  /* Heed Palette: Clean White & Vibrant Green */
+  --background: 0 0% 100%;          /* Pure White */
+  --foreground: 215 28% 17%;         /* Near Black */
   
-  --primary: 134 18% 59%;        /* #84A98C - Sage Green */
+  --primary: 142 72% 29%;            /* #16a34a - Rich Forest Green */
   --primary-foreground: 0 0% 100%;
   
-  --secondary: 120 11% 91%;      /* #E6EBE6 - Light Sage */
-  --secondary-foreground: 217 24% 23%;
+  --secondary: 142 30% 92%;          /* Light green tint */
+  --secondary-foreground: 142 72% 20%;
   
-  --muted: 40 20% 94%;
-  --muted-foreground: 215 16% 47%;
+  --muted: 210 20% 96%;
+  --muted-foreground: 215 16% 40%;
   
-  --accent: 30 53% 64%;          /* #D4A373 - Earthy accent */
+  --accent: 142 60% 40%;             /* Slightly lighter green accent */
   --accent-foreground: 0 0% 100%;
   
   --destructive: 0 84% 60%;
   --destructive-foreground: 210 40% 98%;
   
-  --border: 120 10% 88%;
-  --input: 120 10% 88%;
-  --ring: 134 18% 59%;
+  --border: 142 15% 88%;
+  --input: 142 15% 88%;
+  --ring: 142 72% 29%;
   
   --radius: 1rem;
 }

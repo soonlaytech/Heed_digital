@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
-import { Sun, CheckCircle2, ArrowRight } from "lucide-react";
+import { Sun, CheckCircle2, ArrowRight, Wind, LifeBuoy, LineChart } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Home() {
@@ -102,12 +102,26 @@ export default function Home() {
             <h3 className="font-semibold text-foreground">Chat</h3>
             <p className="text-sm text-muted-foreground">Talk to your companion</p>
           </Link>
-          <Link href="/settings" className="bg-white/60 hover:bg-white border border-transparent hover:border-border p-6 rounded-2xl transition-all duration-200">
-            <div className="w-10 h-10 bg-secondary rounded-full flex items-center justify-center mb-4 text-foreground">
-              <Sun className="w-5 h-5" />
+          <Link href="/insights" className="bg-white/60 hover:bg-white border border-transparent hover:border-border p-6 rounded-2xl transition-all duration-200">
+            <div className="w-10 h-10 bg-primary/15 rounded-full flex items-center justify-center mb-4 text-primary">
+              <LineChart className="w-5 h-5" />
             </div>
-            <h3 className="font-semibold text-foreground">History</h3>
-            <p className="text-sm text-muted-foreground">View past days</p>
+            <h3 className="font-semibold text-foreground">Insights</h3>
+            <p className="text-sm text-muted-foreground">See your mood trends</p>
+          </Link>
+          <Link href="/breathe" className="bg-white/60 hover:bg-white border border-transparent hover:border-border p-6 rounded-2xl transition-all duration-200">
+            <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center mb-4 text-emerald-600">
+              <Wind className="w-5 h-5" />
+            </div>
+            <h3 className="font-semibold text-foreground">Breathe</h3>
+            <p className="text-sm text-muted-foreground">Guided breathing</p>
+          </Link>
+          <Link href="/resources" className="bg-white/60 hover:bg-white border border-transparent hover:border-border p-6 rounded-2xl transition-all duration-200">
+            <div className="w-10 h-10 bg-rose-100 rounded-full flex items-center justify-center mb-4 text-rose-600">
+              <LifeBuoy className="w-5 h-5" />
+            </div>
+            <h3 className="font-semibold text-foreground">Resources</h3>
+            <p className="text-sm text-muted-foreground">Helplines & coping tools</p>
           </Link>
         </div>
       </motion.div>

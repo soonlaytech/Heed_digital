@@ -91,7 +91,7 @@ export default function Settings() {
               </div>
             </div>
             <Switch 
-              checked={settings?.notifications} 
+              checked={settings?.notifications ?? false} 
               onCheckedChange={toggleNotifications}
             />
           </div>

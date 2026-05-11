@@ -18,7 +18,7 @@ async function fetchUser(): Promise<User | null> {
 }
 
 async function logout(): Promise<void> {
-  window.location.href = "/api/logout";
+  await fetch("/api/logout", { redirect: "manual" });
 }
 
 export function useAuth() {
@@ -33,7 +33,11 @@ export function useAuth() {
   const logoutMutation = useMutation({
     mutationFn: logout,
     onSuccess: () => {
-      queryClient.setQueryData(["/api/auth/user"], null);
+      queryClient.clear();
+      // Defer the redirect so React can cleanly unmount before navigation
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 0);
     },
   });
 

@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Home, MessageCircle, Settings, LogOut, Target } from "lucide-react";
+import { Home, MessageCircle, Settings, LogOut, Target, LineChart } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 import heedLogoPath from "@assets/heed_(1)_1773080364173.png";
@@ -10,7 +10,8 @@ export function Navigation() {
 
   const navItems = [
     { href: "/home", icon: Home, label: "Home" },
-    { href: "/chat", icon: MessageCircle, label: "Companion" },
+    { href: "/chat", icon: MessageCircle, label: "Chat" },
+    { href: "/insights", icon: LineChart, label: "Insights" },
     { href: "/goals", icon: Target, label: "Goals" },
     { href: "/settings", icon: Settings, label: "Settings" },
   ];

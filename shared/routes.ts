@@ -1,6 +1,8 @@
 import { z } from 'zod';
 import { insertCheckinSchema, insertSettingsSchema, checkins, settings } from './schema';
 
+export type { CreateCheckinRequest, UpdateSettingsRequest } from './schema';
+
 // Shared error schemas
 export const errorSchemas = {
   validation: z.object({

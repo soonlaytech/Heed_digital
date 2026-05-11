@@ -1,0 +1,117 @@
+# ─── Dependencies ─────────────────────────────────────────────────────────────
+node_modules/
+.pnp
+.pnp.js
+
+# ─── Build Output ─────────────────────────────────────────────────────────────
+dist/
+dist-ssr/
+build/
+out/
+.output/
+
+# ─── Environment Variables (NEVER commit secrets) ─────────────────────────────
+.env
+.env.*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+!.env.example
+*.local
+*.pem
+
+# ─── Logs ─────────────────────────────────────────────────────────────────────
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ─── Cache / Temp ─────────────────────────────────────────────────────────────
+.cache/
+.parcel-cache/
+.vite/
+.turbo/
+.eslintcache
+*.tsbuildinfo
+
+# ─── Testing ──────────────────────────────────────────────────────────────────
+coverage/
+.nyc_output/
+
+# ─── Package Manager Locks (keep only the one you use) ───────────────────────
+# yarn.lock        # uncomment if using yarn
+# pnpm-lock.yaml   # uncomment if using pnpm
+
+# ─── OS Files ─────────────────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ─── Editor / IDE ─────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+.history/
+.vscode-test/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ─── Hosting / deployment outputs ─────────────────────────────────────────────
+.vercel/
+.netlify/
+.wrangler/
+
+# ─── Drizzle / DB ─────────────────────────────────────────────────────────────
+drizzle/
+
+# ─── Replit ───────────────────────────────────────────────────────────────────
+.replit
+replit.nix
+# ─── Misc Temporary Files ────────────────────────────────────────────────────
+tmp/
+temp/
+*.tmp
+
+# ─── Runtime Files ───────────────────────────────────────────────────────────
+*.pid
+*.seed
+*.pid.lock
+
+# ─── Local Databases ──────────────────────────────────────────────────────────
+*.sqlite
+*.sqlite3
+
+# ─── Firebase ────────────────────────────────────────────────────────────────
+.firebase/
+
+# ─── Docker ──────────────────────────────────────────────────────────────────
+.docker/
+
+# ─── Mac/Linux Metadata ──────────────────────────────────────────────────────
+.AppleDouble
+.LSOverride
+
+# ─── Optional: Keep Generated Types Out ──────────────────────────────────────
+generated/
+generated-types/
+
+# ─── Optional: Storybook ─────────────────────────────────────────────────────
+storybook-static/
+
+# ─── Optional: Cypress / Playwright Artifacts ────────────────────────────────
+cypress/videos/
+cypress/screenshots/
+playwright-report/
+test-results/
+
+# ─── Optional: Prisma ────────────────────────────────────────────────────────
+prisma/dev.db
+prisma/dev.db-journal

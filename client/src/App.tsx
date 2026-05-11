@@ -5,9 +5,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Navigation } from "@/components/Navigation";
 
-import Graph from "./Graph";
-import ComparisonTable from "./ComparisonTable";
-
 import Home from "@/pages/Home";
 import Landing from "@/pages/Landing";
 import SignIn from "@/pages/SignIn";
@@ -15,6 +12,9 @@ import CheckIn from "@/pages/CheckIn";
 import Chat from "@/pages/Chat";
 import Goals from "@/pages/Goals";
 import Settings from "@/pages/Settings";
+import Insights from "@/pages/Insights";
+import Resources from "@/pages/Resources";
+import Breathe from "@/pages/Breathe";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -57,6 +57,27 @@ function Router() {
       <Route path="/settings">
         <>
           <Settings />
+          <Navigation />
+        </>
+      </Route>
+
+      <Route path="/insights">
+        <>
+          <Insights />
+          <Navigation />
+        </>
+      </Route>
+
+      <Route path="/resources">
+        <>
+          <Resources />
+          <Navigation />
+        </>
+      </Route>
+
+      <Route path="/breathe">
+        <>
+          <Breathe />
           <Navigation />
         </>
       </Route>

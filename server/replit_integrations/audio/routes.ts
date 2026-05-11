@@ -5,11 +5,15 @@ import { openai, speechToText, ensureCompatibleFormat } from "./client";
 // Body parser with 50MB limit for audio payloads
 const audioBodyParser = express.json({ limit: "50mb" });
 
+function getUserId(req: Request) {
+  return (req.user as any)?.claims?.sub || req.header("x-heed-user-id") || "local-user";
+}
+
 export function registerAudioRoutes(app: Express): void {
   // Get all conversations
   app.get("/api/conversations", async (req: Request, res: Response) => {
     try {
-      const conversations = await chatStorage.getAllConversations();
+      const conversations = await chatStorage.getAllConversations(getUserId(req));
       res.json(conversations);
     } catch (error) {
       console.error("Error fetching conversations:", error);
@@ -20,12 +24,13 @@ export function registerAudioRoutes(app: Express): void {
   // Get single conversation with messages
   app.get("/api/conversations/:id", async (req: Request, res: Response) => {
     try {
-      const id = parseInt(req.params.id);
-      const conversation = await chatStorage.getConversation(id);
+      const id = parseInt(String(req.params.id), 10);
+      const userId = getUserId(req);
+      const conversation = await chatStorage.getConversation(id, userId);
       if (!conversation) {
         return res.status(404).json({ error: "Conversation not found" });
       }
-      const messages = await chatStorage.getMessagesByConversation(id);
+      const messages = await chatStorage.getMessagesByConversation(id, userId);
       res.json({ ...conversation, messages });
     } catch (error) {
       console.error("Error fetching conversation:", error);
@@ -37,7 +42,7 @@ export function registerAudioRoutes(app: Express): void {
   app.post("/api/conversations", async (req: Request, res: Response) => {
     try {
       const { title } = req.body;
-      const conversation = await chatStorage.createConversation(title || "New Chat");
+      const conversation = await chatStorage.createConversation(title || "New Chat", getUserId(req));
       res.status(201).json(conversation);
     } catch (error) {
       console.error("Error creating conversation:", error);
@@ -48,8 +53,8 @@ export function registerAudioRoutes(app: Express): void {
   // Delete conversation
   app.delete("/api/conversations/:id", async (req: Request, res: Response) => {
     try {
-      const id = parseInt(req.params.id);
-      await chatStorage.deleteConversation(id);
+      const id = parseInt(String(req.params.id), 10);
+      await chatStorage.deleteConversation(id, getUserId(req));
       res.status(204).send();
     } catch (error) {
       console.error("Error deleting conversation:", error);
@@ -62,8 +67,9 @@ export function registerAudioRoutes(app: Express): void {
   // Uses gpt-4o-mini-transcribe for STT, gpt-audio for voice response
   app.post("/api/conversations/:id/messages", audioBodyParser, async (req: Request, res: Response) => {
     try {
-      const conversationId = parseInt(req.params.id);
+      const conversationId = parseInt(String(req.params.id), 10);
       const { audio, voice = "alloy" } = req.body;
+      const userId = getUserId(req);
 
       if (!audio) {
         return res.status(400).json({ error: "Audio data (base64) is required" });
@@ -77,10 +83,10 @@ export function registerAudioRoutes(app: Express): void {
       const userTranscript = await speechToText(audioBuffer, inputFormat);
 
       // 3. Save user message
-      await chatStorage.createMessage(conversationId, "user", userTranscript);
+      await chatStorage.createMessage(conversationId, userId, "user", userTranscript);
 
       // 4. Get conversation history
-      const existingMessages = await chatStorage.getMessagesByConversation(conversationId);
+      const existingMessages = await chatStorage.getMessagesByConversation(conversationId, userId);
       const chatHistory = existingMessages.map((m) => ({
         role: m.role as "user" | "assistant",
         content: m.content,
@@ -119,7 +125,7 @@ export function registerAudioRoutes(app: Express): void {
       }
 
       // 7. Save assistant message
-      await chatStorage.createMessage(conversationId, "assistant", assistantTranscript);
+      await chatStorage.createMessage(conversationId, userId, "assistant", assistantTranscript);
 
       res.write(`data: ${JSON.stringify({ type: "done", transcript: assistantTranscript })}\n\n`);
       res.end();

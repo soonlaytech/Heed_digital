@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Send, Bot, User, Brain, Moon, Utensils, Zap, Heart, Users, Star } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { buildChatHeaders, getStoredChatConversationId, setStoredChatConversationId } from "@/lib/chat-session";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -26,7 +27,6 @@ interface BehaviorProfileSummary {
   activePatterns: ActivePattern[];
   streakDays: number;
 }
-const LAST_CONVERSATION_KEY = "heed_chat_conversation_id";
 // ─── Pattern Display Config ───────────────────────────────────────────────────
 
 const PATTERN_CONFIG: Record<
@@ -73,38 +73,43 @@ export default function Chat() {
   useEffect(() => {
     async function init() {
       try {
-        const existingConversations = await fetch("/api/conversations");
+        const headers = buildChatHeaders();
+        const existingConversations = await fetch("/api/conversations", { headers });
         if (existingConversations.ok) {
           const conversations = await existingConversations.json();
-          const storedConversationId = Number(localStorage.getItem(LAST_CONVERSATION_KEY));
-          const activeConversation = conversations.find((conv: any) => conv.id === storedConversationId) || conversations[0];
+          const storedConversationId = getStoredChatConversationId();
+          const activeConversation = conversations.find((conv: any) => String(conv.id) === storedConversationId) || conversations[0];
 
           if (activeConversation) {
-            // For demo mode, don't load previous messages - start fresh
             setConversationId(activeConversation.id);
-            localStorage.setItem(LAST_CONVERSATION_KEY, String(activeConversation.id));
-            // Note: Not loading messages to keep chat empty on refresh
+            setStoredChatConversationId(activeConversation.id);
+
+            const conversationResponse = await fetch(`/api/conversations/${activeConversation.id}`, { headers });
+            if (conversationResponse.ok) {
+              const detail = await conversationResponse.json();
+              setMessages(detail.messages ?? []);
+            }
           } else {
             const createRes = await fetch("/api/conversations", {
               method: "POST",
-              headers: { "Content-Type": "application/json" },
+              headers,
               body: JSON.stringify({ title: "Daily Chat" }),
             });
             if (createRes.ok) {
               const conv = await createRes.json();
               setConversationId(conv.id);
-              localStorage.setItem(LAST_CONVERSATION_KEY, String(conv.id));
+              setStoredChatConversationId(conv.id);
             }
           }
         }
 
-        const profileRes = await fetch("/api/behavior-profile");
+        const profileRes = await fetch("/api/behavior-profile", { headers: buildChatHeaders() });
         if (profileRes.ok) {
           const data: BehaviorProfileSummary = await profileRes.json();
           setProfile(data);
           if (data.dominantCondition !== "none" && data.activePatterns.length > 0) {
             setShowProfileBanner(true);
-            setTimeout(() => setShowProfileBanner(false), 5000);
+            setTimeout(() => setShowProfileBanner(false), 5001);
           }
         }
       } catch (e) {
@@ -130,7 +135,7 @@ export default function Chat() {
     try {
       const response = await fetch(`/api/conversations/${conversationId}/messages`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: buildChatHeaders(),
         body: JSON.stringify({ content: userMsg.content }),
       });
 
@@ -216,38 +221,45 @@ export default function Chat() {
         )}
 
         {/* Message list */}
-        {messages.map((msg) => (
-          <motion.div
-            key={msg.id}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.2 }}
-            className={`flex gap-3 ${msg.role === "user" ? "flex-row-reverse" : ""}`}
-          >
-            <div className={`
-              w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0
-              ${msg.role === "user" ? "bg-accent text-white" : "bg-primary text-white"}
-            `}>
-              {msg.role === "user" ? <User className="w-5 h-5" /> : <Bot className="w-5 h-5" />}
-            </div>
-            <div className={`
-              max-w-[80%] p-4 rounded-2xl text-base leading-relaxed shadow-sm
-              ${msg.role === "user"
-                ? "bg-white text-foreground rounded-tr-none border border-border"
-                : "bg-primary/10 text-foreground rounded-tl-none border border-primary/20"}
-            `}>
-              {msg.content}
-            </div>
-          </motion.div>
-        ))}
+        {messages.map((msg) => {
+          const isUser = msg.role === "user";
+
+          return (
+            <motion.div
+              key={msg.id}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2 }}
+              className={`flex w-full ${isUser ? "justify-end" : "justify-start"}`}
+            >
+              <div className={`flex max-w-[85%] items-start gap-3 ${isUser ? "flex-row-reverse" : "flex-row"}`}>
+                <div className={`
+                  w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0
+                  ${isUser ? "bg-accent text-white" : "bg-primary text-white"}
+                `}>
+                  {isUser ? <User className="w-5 h-5" /> : <Bot className="w-5 h-5" />}
+                </div>
+                <div
+                  className={`whitespace-pre-line rounded-2xl px-4 py-3 text-base leading-relaxed shadow-sm ${
+                    isUser
+                      ? "bg-accent/10 text-foreground"
+                      : "bg-white text-foreground border border-border/60"
+                  }`}
+                >
+                  {msg.content}
+                </div>
+              </div>
+            </motion.div>
+          );
+        })}
 
         {/* Typing indicator */}
         {isStreaming && (
-          <div className="flex gap-3">
+          <div className="flex gap-4">
             <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0 text-white">
               <Bot className="w-5 h-5" />
             </div>
-            <div className="bg-primary/10 p-4 rounded-2xl rounded-tl-none flex items-center gap-1">
+            <div className="flex-1 pt-1 flex items-center gap-1">
               <span className="w-2 h-2 bg-primary/40 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
               <span className="w-2 h-2 bg-primary/40 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
               <span className="w-2 h-2 bg-primary/40 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
