@@ -9,9 +9,13 @@ import { authStorage } from "./storage";
 
 const getOidcConfig = memoize(
   async () => {
+    const replId = process.env.REPL_ID?.trim();
+    if (!replId || replId === "dummy") {
+      throw new Error("REPL_ID is not configured. Using local auth fallback.");
+    }
     return await client.discovery(
       new URL(process.env.ISSUER_URL ?? "https://replit.com/oidc"),
-      process.env.REPL_ID!
+      replId
     );
   },
   { maxAge: 3600 * 1000 }
@@ -57,7 +61,19 @@ export async function setupAuth(app: Express) {
   app.use(passport.initialize());
   app.use(passport.session());
 
-  const config = await getOidcConfig();
+  const useLocalDevAuth = process.env.NODE_ENV !== "production" && (!process.env.REPL_ID || process.env.REPL_ID === "dummy");
+  const useLocalProdAuth = process.env.NODE_ENV === "production" && (!process.env.REPL_ID || process.env.REPL_ID === "dummy");
+
+  let config: any = null;
+
+  // Only try to get OIDC config if REPL_ID is valid
+  if (!useLocalDevAuth && !useLocalProdAuth) {
+    try {
+      config = await getOidcConfig();
+    } catch (err) {
+      console.warn("Failed to initialize OIDC. Using local auth fallback.", err);
+    }
+  }
 
   const verify: VerifyFunction = async (
     tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers,
@@ -75,7 +91,7 @@ export async function setupAuth(app: Express) {
   // Helper function to ensure strategy exists for a domain
   const ensureStrategy = (domain: string) => {
     const strategyName = `replitauth:${domain}`;
-    if (!registeredStrategies.has(strategyName)) {
+    if (!registeredStrategies.has(strategyName) && config) {
       const strategy = new Strategy(
         {
           name: strategyName,
@@ -93,10 +109,8 @@ export async function setupAuth(app: Express) {
   passport.serializeUser((user: Express.User, cb) => cb(null, user));
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
-  const useLocalDevAuth = process.env.NODE_ENV !== "production" && (!process.env.REPL_ID || process.env.REPL_ID === "dummy");
-
   app.get("/api/login", (req, res, next) => {
-    if (useLocalDevAuth) {
+    if (useLocalDevAuth || useLocalProdAuth || !config) {
       return res.redirect("/api/local-login");
     }
 
@@ -143,6 +157,9 @@ export async function setupAuth(app: Express) {
   });
 
   app.get("/api/callback", (req, res, next) => {
+    if (!config) {
+      return res.redirect("/api/local-login");
+    }
     ensureStrategy(req.hostname);
     passport.authenticate(`replitauth:${req.hostname}`, {
       successReturnToOrRedirect: "/",
@@ -152,8 +169,8 @@ export async function setupAuth(app: Express) {
 
   app.get("/api/logout", (req, res) => {
     req.logout(() => {
-      if (useLocalDevAuth) {
-        // In local dev there is no real OIDC provider — just go to the landing page
+      if (useLocalDevAuth || useLocalProdAuth || !config) {
+        // In local dev or when OIDC is not configured, just go to the landing page
         return res.redirect("/");
       }
       res.redirect(
